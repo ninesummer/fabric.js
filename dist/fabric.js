@@ -2050,11 +2050,19 @@ fabric.CommonMethods = {
   if (shouldUseAddListenerRemoveListener) {
     /** @ignore */
     addListener = function (element, eventName, handler, options) {
+      if (element === undefined) {
+        console.log('addListener called for undefined object. Ignoring ...', eventName);
+        return;
+      }
       // since ie10 or ie9 can use addEventListener but they do not support options, i need to check
       element.addEventListener(eventName, handler, shouldUseAttachEventDetachEvent ? false : options);
     };
     /** @ignore */
     removeListener = function (element, eventName, handler, options) {
+      if (element === undefined) {
+        console.log('removeListener called for undefined object. Ignoring ...', eventName);
+        return;
+      }
       element.removeEventListener(eventName, handler, shouldUseAttachEventDetachEvent ? false : options);
     };
   }
@@ -10312,6 +10320,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
 
       removeListener(this.upperCanvasEl, 'touchstart', this._onMouseDown);
       removeListener(this.upperCanvasEl, 'touchmove', this._onMouseMove);
+      removeListener(this.upperCanvasEl, 'touchend', this._onMouseMove);
 
       if (typeof eventjs !== 'undefined' && 'remove' in eventjs) {
         eventjs.remove(this.upperCanvasEl, 'gesture', this._onGesture);

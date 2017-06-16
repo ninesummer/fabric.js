@@ -1072,9 +1072,17 @@ fabric.CommonMethods = {
     var shouldUseAddListenerRemoveListener = areHostMethods(fabric.document.documentElement, "addEventListener", "removeEventListener") && areHostMethods(fabric.window, "addEventListener", "removeEventListener"), shouldUseAttachEventDetachEvent = areHostMethods(fabric.document.documentElement, "attachEvent", "detachEvent") && areHostMethods(fabric.window, "attachEvent", "detachEvent"), listeners = {}, handlers = {}, addListener, removeListener;
     if (shouldUseAddListenerRemoveListener) {
         addListener = function(element, eventName, handler, options) {
+            if (element === undefined) {
+                console.log("addListener called for undefined object. Ignoring ...", eventName);
+                return;
+            }
             element.addEventListener(eventName, handler, shouldUseAttachEventDetachEvent ? false : options);
         };
         removeListener = function(element, eventName, handler, options) {
+            if (element === undefined) {
+                console.log("removeListener called for undefined object. Ignoring ...", eventName);
+                return;
+            }
             element.removeEventListener(eventName, handler, shouldUseAttachEventDetachEvent ? false : options);
         };
     } else if (shouldUseAttachEventDetachEvent) {
@@ -5222,6 +5230,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
             removeListener(this.upperCanvasEl, "contextmenu", this._onContextMenu);
             removeListener(this.upperCanvasEl, "touchstart", this._onMouseDown);
             removeListener(this.upperCanvasEl, "touchmove", this._onMouseMove);
+            removeListener(this.upperCanvasEl, "touchend", this._onMouseMove);
             if (typeof eventjs !== "undefined" && "remove" in eventjs) {
                 eventjs.remove(this.upperCanvasEl, "gesture", this._onGesture);
                 eventjs.remove(this.upperCanvasEl, "drag", this._onDrag);
