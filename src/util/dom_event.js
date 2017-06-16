@@ -81,11 +81,19 @@
   if (shouldUseAddListenerRemoveListener) {
     /** @ignore */
     addListener = function (element, eventName, handler, options) {
+      if (element === undefined) {
+        console.log('addListener called for undefined object. Ignoring ...', eventName);
+        return;
+      }
       // since ie10 or ie9 can use addEventListener but they do not support options, i need to check
       element.addEventListener(eventName, handler, shouldUseAttachEventDetachEvent ? false : options);
     };
     /** @ignore */
     removeListener = function (element, eventName, handler, options) {
+      if (element === undefined) {
+        console.log('removeListener called for undefined object. Ignoring ...', eventName);
+        return;
+      }
       element.removeEventListener(eventName, handler, shouldUseAttachEventDetachEvent ? false : options);
     };
   }
