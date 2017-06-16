@@ -5230,7 +5230,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
             removeListener(this.upperCanvasEl, "contextmenu", this._onContextMenu);
             removeListener(this.upperCanvasEl, "touchstart", this._onMouseDown);
             removeListener(this.upperCanvasEl, "touchmove", this._onMouseMove);
-            removeListener(this.upperCanvasEl, "touchend", this._onMouseMove);
+            removeListener(this.upperCanvasEl, "touchend", this._onMouseUp);
             if (typeof eventjs !== "undefined" && "remove" in eventjs) {
                 eventjs.remove(this.upperCanvasEl, "gesture", this._onGesture);
                 eventjs.remove(this.upperCanvasEl, "drag", this._onDrag);
