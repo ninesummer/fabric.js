@@ -5230,7 +5230,8 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
             removeListener(this.upperCanvasEl, "contextmenu", this._onContextMenu);
             removeListener(this.upperCanvasEl, "touchstart", this._onMouseDown);
             removeListener(this.upperCanvasEl, "touchmove", this._onMouseMove);
-            removeListener(this.upperCanvasEl, "touchend", this._onMouseUp);
+            removeListener(fabric.document, "touchend", this._onMouseUp);
+            removeListener(fabric.document, "touchmove", this._onMouseMove);
             if (typeof eventjs !== "undefined" && "remove" in eventjs) {
                 eventjs.remove(this.upperCanvasEl, "gesture", this._onGesture);
                 eventjs.remove(this.upperCanvasEl, "drag", this._onDrag);
@@ -5292,6 +5293,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
             return false;
         },
         _onMouseDown: function(e) {
+            console.log("!!!!- mouse downer !!!");
             e.preventDefault();
             this.__onMouseDown(e);
             addListener(fabric.document, "touchend", this._onMouseUp, {

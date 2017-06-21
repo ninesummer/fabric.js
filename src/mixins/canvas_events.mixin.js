@@ -95,7 +95,12 @@
 
       removeListener(this.upperCanvasEl, 'touchstart', this._onMouseDown);
       removeListener(this.upperCanvasEl, 'touchmove', this._onMouseMove);
-      removeListener(this.upperCanvasEl, 'touchend', this._onMouseUp);
+
+
+      // NS - Added these 2 removes because there are race conditions where these
+      //      listeners are active when dispose is called.
+      removeListener(fabric.document, 'touchend', this._onMouseUp);
+      removeListener(fabric.document, 'touchmove', this._onMouseMove);
 
       if (typeof eventjs !== 'undefined' && 'remove' in eventjs) {
         eventjs.remove(this.upperCanvasEl, 'gesture', this._onGesture);
@@ -205,7 +210,8 @@
      * @param {Event} e Event object fired on mousedown
      */
     _onMouseDown: function (e) {
-      e.preventDefault();
+console.log('!!!!- mouse downer !!!');    
+  e.preventDefault();
       this.__onMouseDown(e);
 
       addListener(fabric.document, 'touchend', this._onMouseUp, { passive: false });
