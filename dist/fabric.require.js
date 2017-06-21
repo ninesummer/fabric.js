@@ -5293,7 +5293,6 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
             return false;
         },
         _onMouseDown: function(e) {
-            console.log("!!!!- mouse downer !!!");
             e.preventDefault();
             this.__onMouseDown(e);
             addListener(fabric.document, "touchend", this._onMouseUp, {
