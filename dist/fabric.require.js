@@ -5170,6 +5170,9 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
 })();
 
 (function() {
+    var lastClientX = 0;
+    var lastClientY = 0;
+    var outOfBoundsDrawDetected = false;
     var cursorOffset = {
         mt: 0,
         tr: 1,
@@ -5294,6 +5297,9 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
         },
         _onMouseDown: function(e) {
             e.preventDefault();
+            outOfBoundsDrawDetected = false;
+            lastClientX = e.changedTouches[0].clientX;
+            lastClientY = e.changedTouches[0].clientY;
             this.__onMouseDown(e);
             addListener(fabric.document, "touchend", this._onMouseUp, {
                 passive: false
@@ -5311,7 +5317,9 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
             }
         },
         _onMouseUp: function(e) {
-            this.__onMouseUp(e);
+            if (!outOfBoundsDrawDetected) {
+                this.__onMouseUp(e);
+            }
             removeListener(fabric.document, "mouseup", this._onMouseUp);
             removeListener(fabric.document, "touchend", this._onMouseUp);
             removeListener(fabric.document, "mousemove", this._onMouseMove);
@@ -5329,7 +5337,28 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, {
         },
         _onMouseMove: function(e) {
             !this.allowTouchScrolling && e.preventDefault && e.preventDefault();
-            this.__onMouseMove(e);
+            var top = this.upperCanvasEl.getBoundingClientRect().top;
+            var bottom = this.upperCanvasEl.getBoundingClientRect().bottom;
+            var left = this.upperCanvasEl.getBoundingClientRect().left;
+            var right = this.upperCanvasEl.getBoundingClientRect().right;
+            var currentX = e.changedTouches[0].clientX;
+            var currentY = e.changedTouches[0].clientY;
+            var outside = currentX < left || currentX > right || (currentY < top || currentY > bottom);
+            var jumpThreshold = 200;
+            if (outside) {
+                var xDiff = Math.abs(currentX - lastClientX);
+                var yDiff = Math.abs(currentY - lastClientY);
+                if (xDiff > jumpThreshold || yDiff > jumpThreshold) {
+                    console.log("!!!  DING DING DING - line drawn !!! ");
+                    outOfBoundsDrawDetected = true;
+                }
+            }
+            console.log("outside: " + outside);
+            lastClientX = e.changedTouches[0].clientX;
+            lastClientY = e.changedTouches[0].clientY;
+            if (!outOfBoundsDrawDetected) {
+                this.__onMouseMove(e);
+            }
         },
         _onResize: function() {
             this.calcOffset();
