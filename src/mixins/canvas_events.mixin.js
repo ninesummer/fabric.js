@@ -1,6 +1,9 @@
 (function() {
-  var lastClientX = 0;
-  var lastClientY = 0;
+  // TF-569 / https://github.com/kangax/fabric.js/issues/3946
+  // - These are for detecting the situation where the user touches outside the canvas
+  //   while the palm is on the canvas and a line gets drawn
+  var lastPointerX = 0;
+  var lastPointerY = 0;
   var outOfBoundsDrawDetected = false;
 
   var cursorOffset = {
@@ -216,10 +219,10 @@
       e.preventDefault();
 
       outOfBoundsDrawDetected = false;
-  
-      if (e.type == 'touchstart') {
-        lastClientX = e.changedTouches[0].clientX;
-        lastClientY = e.changedTouches[0].clientY;
+
+      if (e.type === 'touchstart') {
+        lastPointerX = e.changedTouches[0].clientX;
+        lastPointerY = e.changedTouches[0].clientY;
       }
 
       this.__onMouseDown(e);
@@ -275,34 +278,36 @@
     _onMouseMove: function (e) {
       !this.allowTouchScrolling && e.preventDefault && e.preventDefault();
 
-      if (e.type == 'touchmove') {
-        // TODO: better way to get the non-scrolling parent container - also - parent it off by a pixel
-        var top = this.upperCanvasEl.parentElement.parentElement.getBoundingClientRect().top;
-        var bottom = this.upperCanvasEl.parentElement.parentElement.getBoundingClientRect().bottom;
-        var left = this.upperCanvasEl.parentElement.parentElement.getBoundingClientRect().left;
-        var right = this.upperCanvasEl.parentElement.parentElement.getBoundingClientRect().right;
-
+      // TF-569: Let's see if it looks like they tapped the pen outside the canvas while
+      //         the palm initiated a touchstart
+      if (e.type === 'touchmove') {
+        // Since we might be scrolling the canvas within a container we're going to take the position of the parent container
+        var bounds = this.upperCanvasEl.parentElement.parentElement.getBoundingClientRect();
         var currentX = e.changedTouches[0].clientX;
         var currentY = e.changedTouches[0].clientY;
 
-        var outside = (currentX < left || currentX > right) || (currentY < top || currentY > bottom);
-        var jumpThreshold = 200;
-        if (outside) {
+        var pointerIsOutside = (
+          currentX < bounds.left ||
+          currentX > bounds.right ||
+          currentY < bounds.top ||
+          currentY > bounds.bottom
+        );
+
+        if (pointerIsOutside) {
           // see if big jump
-          var xDiff = Math.abs(currentX - lastClientX);
-          var yDiff = Math.abs(currentY - lastClientY);
+          var jumpThreshold = 100;
+          var xDiff = Math.abs(currentX - lastPointerX);
+          var yDiff = Math.abs(currentY - lastPointerY);
 
           if (xDiff > jumpThreshold || yDiff > jumpThreshold) {
-            console.log("!!!  DING DANG DING - line drawn !!! ");
+            console.log('NOTE: we detected an outside pointer tap.  Intercepting...');
             outOfBoundsDrawDetected = true;
           }
         }
-        console.log('outside: ' + outside, e.type);
 
-        lastClientX = e.changedTouches[0].clientX;
-        lastClientY = e.changedTouches[0].clientY;
+        lastPointerX = e.changedTouches[0].clientX;
+        lastPointerY = e.changedTouches[0].clientY;
       }
-
 
       if (!outOfBoundsDrawDetected) {
         this.__onMouseMove(e);
