@@ -4012,6 +4012,10 @@ fabric.BaseBrush = fabric.util.createClass({
             this.canvas.contextTop.moveTo(p.x, p.y);
         },
         _addPoint: function(point) {
+            if (isNaN(point.x)) {
+                console.log("Ignoring bogus point:", point);
+                return;
+            }
             this._points.push(point);
         },
         _reset: function() {

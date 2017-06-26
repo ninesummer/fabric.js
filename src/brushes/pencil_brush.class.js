@@ -67,6 +67,12 @@
      * @param {fabric.Point} point Point to be added to points array
      */
     _addPoint: function(point) {
+      // TF-703 / https://github.com/kangax/fabric.js/issues/4036
+      // Apple Pencil sometimes produces bogus points when drawing off the left edge of the canvas
+      if (isNaN(point.x)) {
+        console.log('Ignoring bogus point:', point);
+        return;
+      }
       this._points.push(point);
     },
 
